@@ -6,9 +6,9 @@ import { Comment } from "../models/comment.model.js";
 
 export const addNewPost = async (req, res) => {
   try {
-    const caption = req.body;
+    const {caption} = req.body;
     const image = req.file;
-    const author = req.id;
+    const authorId = req.id;
 
     if (!image) return res.status(400).json({ message: "Image is required", success: false });
 
@@ -46,13 +46,13 @@ export const getAllPosts = async (req, res) => {
   try {
     const posts = await Post.find()
       .sort({ createdAt: -1 })
-      .populate({ path: "author", select: "username, profilePicture" })
+      .populate({ path: "author", select: "username profilePicture" })
       .populate({
         path: "comments",
         sort: { createdAt: -1 },
         populate: {
           path: "author",
-          select: "username, profilePicture",
+          select: "username profilePicture",
         },
       });
     return res.status(200).json({
@@ -137,7 +137,7 @@ export const addComment = async (req, res) => {
       author: personwhoCommented,
       post: postId,
     });
-    await comment.populate({ path: "author", select: "username, profilePicture" });
+    await comment.populate({ path: "author", select: "username profilePicture" });
     post.comments.push(comment._id);
     await post.save();
     return res.status(200).json({
