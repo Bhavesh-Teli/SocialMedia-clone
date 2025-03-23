@@ -3,6 +3,7 @@ import { User } from "../models/user.models.js";
 import {getDataUri} from "../utils/datauri.js";
 import jwt from "jsonwebtoken";
 import cloudinary from "../utils/cloudinary.js";
+import { Post } from "../models/post.model.js";
 export const register = async (req, res) => {
   try {
     const { username, email, password } = req.body;

@@ -8,7 +8,7 @@ import CommentDialog from "./CommentDialog";
 import { useSelector, useDispatch } from "react-redux";
 import { toast } from "sonner";
 import axios from "axios";
-import { setPosts } from "@/redux/postSlice";
+import { setPosts, setSelectedPost } from "@/redux/postSlice";
 
 const Post = ({ post }) => {
   const [text, setText] = useState("");
@@ -53,37 +53,36 @@ const Post = ({ post }) => {
     }
   };
   const commentHandler = async () => {
-    
     try {
       const res = await axios.post(
         `http://localhost:5000/api/v1/post/${post._id}/comment`,
-          { text },
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-            withCredentials: true,
-          }
-        );
-        console.log(res.data);
-        if (res.data.success) {
-          const updatedComment = [...comment, res.data.comment];
-          setComment(updatedComment);
-          const updatedPostData = posts.map((post) =>
-            post._id === post._id
-              ? {
-                  ...post,
-                  comments: updatedComment,
-                }
-              : post
-          );
-          dispatch(setPosts(updatedPostData));
-          toast.success(res.data.message);  
-          setText("");
+        { text },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
         }
-      } catch (error) {
-        console.log(error);
+      );
+      console.log(res.data);
+      if (res.data.success) {
+        const updatedComment = [...comment, res.data.comment];
+        setComment(updatedComment);
+        const updatedPostData = posts.map((post) =>
+          post._id === post._id
+            ? {
+                ...post,
+                comments: updatedComment,
+              }
+            : post
+        );
+        dispatch(setPosts(updatedPostData));
+        toast.success(res.data.message);
+        setText("");
       }
+    } catch (error) {
+      console.log(error);
+    }
   };
   const deletePostHandler = async () => {
     try {
@@ -135,7 +134,13 @@ const Post = ({ post }) => {
           ) : (
             <FaRegHeart size={"22px"} className="cursor-pointer hover:text-gray-600" onClick={likeOrDislikeHandler} />
           )}
-          <MessageCircle onClick={() => setOpen(true)} className="cursor-pointer hover:text-gray-600" />
+          <MessageCircle
+            onClick={() => {
+              dispatch(setSelectedPost(post));
+              setOpen(true);
+            }}
+            className="cursor-pointer hover:text-gray-600"
+          />
           <Send className="cursor-pointer hover:text-gray-600" />
         </div>
         <Bookmark className="cursor-pointer hover:text-gray-600" />
@@ -145,13 +150,26 @@ const Post = ({ post }) => {
         <span className="font-medium mr-2">{post.author.username}</span>
         {post.caption}
       </p>
-      <span onClick={() => setOpen(true)} className="cursor-pointer text-sm text-gray-400">
-        View all {comment.length} comments
-      </span>
+
+      {comment.length > 0 && (
+        <span
+          onClick={() => {
+            dispatch(setSelectedPost(post));
+            setOpen(true);
+          }}
+          className="cursor-pointer text-sm text-gray-400"
+        >
+          View all {comment.length} comments
+        </span>
+      )}
       <CommentDialog open={open} setOpen={setOpen} />
       <div className="flex items-center justify-between">
         <input type="text" placeholder="Add a comment..." className="outline-none text-sm w-full" onChange={changeEventHandler} value={text} />
-        {text && <span onClick={commentHandler} className="text-[#3BADF9] cursor-pointer" >Post</span>}
+        {text && (
+          <span onClick={commentHandler} className="text-[#3BADF9] cursor-pointer">
+            Post
+          </span>
+        )}
       </div>
     </div>
   );
