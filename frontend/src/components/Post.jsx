@@ -11,6 +11,7 @@ import axios from "axios";
 import { setPosts, setSelectedPost } from "@/redux/postSlice";
 
 const Post = ({ post }) => {
+  console.log("reach post",post)
   const [text, setText] = useState("");
   const [open, setOpen] = useState(false);
   const { user } = useSelector((store) => store.auth);
@@ -88,7 +89,7 @@ const Post = ({ post }) => {
     try {
       const res = await axios.delete(`http://localhost:5000/api/v1/post/delete/${post._id}`, { withCredentials: true });
       if (res.data.success) {
-        const updatedPosts = posts.filter((post) => post._id !== post._id);
+        const updatedPosts = posts.filter((postItem) => postItem?._id !== post?._id);
         dispatch(setPosts(updatedPosts));
         toast.success(res.data.message);
       }
