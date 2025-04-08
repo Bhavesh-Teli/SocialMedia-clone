@@ -9,9 +9,10 @@ import { useSelector, useDispatch } from "react-redux";
 import { toast } from "sonner";
 import axios from "axios";
 import { setPosts, setSelectedPost } from "@/redux/postSlice";
+import { Badge } from './ui/badge'
 
 const Post = ({ post }) => {
-  console.log("reach post",post)
+  console.log("reach post", post);
   const [text, setText] = useState("");
   const [open, setOpen] = useState(false);
   const { user } = useSelector((store) => store.auth);
@@ -105,7 +106,10 @@ const Post = ({ post }) => {
             <AvatarImage src={post.author.profile} alt="post_image" />
             <AvatarFallback>CN</AvatarFallback>
           </Avatar>
-          <h1>{post.author.username}</h1>
+          <div className="flex items-center gap-3">
+            <h1>{post.author?.username}</h1>
+            {user?._id === post.author._id && <Badge variant="secondary">Author</Badge>}
+          </div>
         </div>
         <Dialog>
           <DialogTrigger asChild>
@@ -128,7 +132,7 @@ const Post = ({ post }) => {
       </div>
       <img className="rounded-sm my-2 w-full aspect-square object-cover" src={post.image} alt="post_image" />
 
-      <div className="flex items-center justify-between my-">
+      <div className="flex items-center justify-between my-2">
         <div className="flex items-center gap-3">
           {liked ? (
             <FaHeart size={"22px"} className="cursor-pointer hover:text-red-600" onClick={likeOrDislikeHandler} />
